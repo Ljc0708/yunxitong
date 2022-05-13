@@ -4,23 +4,56 @@ import Home from "../views/Home.vue";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    name: "Home",
-    component: Home,
+    redirect: "/dashboard",
   },
   {
-    path: "/about",
-    name: "About",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
+    path: "/",
+    name: "Home",
+    component: Home,
+    children: [
+      {
+        path: "/dashboard",
+        name: "dashboard",
+        meta: {
+          title: "系统首页",
+        },
+        component: () =>
+          import(/* webpackChunkName: "dashboard" */ "../views/Dashboard.vue"),
+      },
+      {
+        path: "/table",
+        name: "table",
+        meta: {
+          title: "基础表格",
+        },
+        component: () =>
+          import(/* webpackChunkName: "dashboard" */ "../views/Dashboard.vue"),
+      },
+    ],
+  },
+  {
+    path: "/login",
+    name: "Login",
+    meta: {
+      title: "登录",
+    },
     component: () =>
-      import(/* webpackChunkName: "about" */ "../views/About.vue"),
+      import(/* webpackChunkName: "login" */ "../views/Login.vue"),
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const token = sessionStorage.getItem("token");
+  if (!token && to.path !== "/login") {
+    next("/login");
+  } else {
+    next();
+  }
 });
 
 export default router;
